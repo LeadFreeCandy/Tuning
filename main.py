@@ -1,3 +1,5 @@
+#X axis: [.132, 26.6, .29]
+
 import numpy as np
 import tuning
 import time
@@ -68,6 +70,7 @@ def main(start_values):
 
 
             cost_delta = cost - baseline
+            # print(cost_delta)
 
             # print(baseline)
             # print(cost)
@@ -89,6 +92,8 @@ def main(start_values):
                 current_values[index] = ranges[index][0]
             elif current_values[index] > ranges[index][1]:
                 current_values[index] = ranges[index][1]
+
+            print(current_values)
 
             if cost < absolute_min:  # TODO: retry to unsure it truly is abs minimum
                 # print(f"old absolute_min: {absolute_min}")
