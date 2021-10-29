@@ -2,7 +2,7 @@
 # May be left blank if only one is connected.
 odrive_serial = "20793595524B"
 # Which axis you would like to tune, must be 0 or 1.
-axis_num = 1
+axis_num = 0
 
 
 
@@ -31,6 +31,7 @@ variance_weight = 3
 # The initial values to seed the evolution process with in order of: vel_gain, pos_gain, vel_integrator_gain
 # Set to empty array if you would like it to read existing values
 start_values = [.16,20,.32]
+# start_values = []
 # The ranges for each of the values in the same order
 ranges = [[0,.2], [0,250], [0,3]]
 

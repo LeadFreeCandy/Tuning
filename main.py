@@ -3,7 +3,7 @@ import tuning
 import time
 import random as rd
 from config import *
-
+from odrive.enums import *
 
 def in_range(val, range):
     return range[0] <= val <= range[1]
@@ -45,6 +45,7 @@ def main(start_values):
             test_values = current_values[:]
             test_values[index] *= shift
 
+            # print(f"val = {test_values[index]}, max = {ranges[index]}")
             if test_values[index] < ranges[index][0]:
                 test_values[index] = ranges[index][0]
             elif test_values[index] > ranges[index][1]:
@@ -78,7 +79,7 @@ def main(start_values):
                 # print(f"old absolute_min: {absolute_min}")
                 absolute_min = cost
                 print(f"new absolute_min: {absolute_min}")
-                best_values = current_values
+                best_values = current_values[:]
 
 
 
@@ -87,8 +88,8 @@ def main(start_values):
 
     except KeyboardInterrupt:
 
-
         tuning.axis.requested_state = 1
+
         # tuning.axis.controller.config.vel_gain = 0
         # tuning.axis.controller.config.pos_gain = 0
         # tuning.axis.controller.config.vel_integrator_gain = 0
@@ -98,6 +99,20 @@ def main(start_values):
         #grapher.show_graph()
 
         print(f"Lowest cost: {absolute_min} \n At Values {best_values}")
+
+        if input("Would you like to preview these values? y/N: ") == "y":
+            tuning.axis.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
+            tuning.axis.controller.config.control_mode = CONTROL_MODE_POSITION_CONTROL
+            tuning.axis.controller.config.input_mode = INPUT_MODE_PASSTHROUGH
+
+            tuning.axis.controller.input_pos = 0
+
+            time.sleep(1)
+
+            print(f" Cost: {tuning.evaluate_values(best_values, mov_dist, mov_time, rmse_weight, variance_weight)}")
+
+            tuning.axis.requested_state = 1
+
         if input("Would you like to keep these values? y/N: ") == "y":
             tuning.save_configuration(best_values)
 
