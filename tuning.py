@@ -4,6 +4,7 @@ from odrive.utils import *
 import time
 import numpy as np
 import math
+import fibre.libfibre
 
 axis = None
 odrv = None
@@ -99,7 +100,7 @@ def start_plotter(data_list):
 
 
 
-def startup(vel_limit, odrv_serial, axis_num):
+def startup(vel_limit, odrive_serial, axis_num):
     global axis
     global odrv
 
@@ -107,7 +108,7 @@ def startup(vel_limit, odrv_serial, axis_num):
     assert axis_num == 1 or axis_num == 0
 
 
-    if odrv_serial != "":
+    if odrive_serial != "":
         odrv = odrive.find_any(serial_number=odrive_serial)
     else:
         odrv = odrive.find_any()
@@ -202,7 +203,13 @@ def save_configuration(values):
     axis.controller.config.vel_integrator_gain = values[2]
 
     print("saving configuration!!")
-    odrv.save_configuration()
+
+    try:
+        odrv.save_configuration()
+    except fibre.libfibre.ObjectLostError:
+        pass  # Saving configuration makes the device reboot
+
+    print("saved!")
 
 # odrv0.axis0.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE
 # odrv0.axis0.motor.config.pre_calibrated = True

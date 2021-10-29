@@ -12,7 +12,7 @@ def in_range(val, range):
 
 
 
-def main(start_values, vel_range, pos_range, int_range):
+def main(start_values):
 
     tuning.startup(vel_limit, odrive_serial, axis_num)
     absolute_min = float("inf")
@@ -59,12 +59,12 @@ def main(start_values, vel_range, pos_range, int_range):
 
             cost_delta = cost - baseline
 
-            print(baseline)
-            print(cost)
+            # print(baseline)
+            # print(cost)
 
-            print(f"--shifting with cost delta: {cost_delta}")
-            print(f"--previous values: {current_values}")
-            print(f"--new values: {test_values}")
+            # print(f"--shifting with cost delta: {cost_delta}")
+            # print(f"--previous values: {current_values}")
+            # print(f"--new values: {test_values}")
 
             # current_values[index] *= shift  # TODO: multipy shift by the magnitude of delta
 
@@ -72,10 +72,10 @@ def main(start_values, vel_range, pos_range, int_range):
                 current_values[index] *= shift
 
             else:
-                current_values[index] /= shift / 2
+                current_values[index] /= shift
 
             if cost < absolute_min:  # TODO: retry to unsure it truly is abs minimum
-                print(f"old absolute_min: {absolute_min}")
+                # print(f"old absolute_min: {absolute_min}")
                 absolute_min = cost
                 print(f"new absolute_min: {absolute_min}")
                 best_values = current_values
@@ -108,4 +108,4 @@ def main(start_values, vel_range, pos_range, int_range):
 
 
 if __name__ == "__main__":
-    main(start_values, vel_range, pos_range, int_range)
+    main(start_values)

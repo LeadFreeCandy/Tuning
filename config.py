@@ -1,8 +1,8 @@
 # Serial number of the odrive that you would like to tune.
 # May be left blank if only one is connected.
-odrive_serial = "" 
+odrive_serial = "20793595524B"
 # Which axis you would like to tune, must be 0 or 1.
-axis_num = 0
+axis_num = 1
 
 
 
