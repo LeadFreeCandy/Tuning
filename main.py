@@ -42,16 +42,25 @@ def main(start_values):
 
             shift = rd.choice([1/iteration_shift_factor, iteration_shift_factor])
             index = rd.randrange(0,3)
-            test_values = current_values[:]
+
+
+            test_values = [i for i in current_values]
+
+            # print(f"test vals b4 = {test_values}")
             test_values[index] *= shift
 
-            # print(f"val = {test_values[index]}, max = {ranges[index]}")
+            # print(f"index = {index}")
+            # print(f"test vals after shift = {test_values}")
+            # print(f"val = {test_values[index]}, max = {ranges[index][1]}")
+
             if test_values[index] < ranges[index][0]:
                 test_values[index] = ranges[index][0]
             elif test_values[index] > ranges[index][1]:
                 test_values[index] = ranges[index][1]
 
-            print(f"current_values = {current_values}")
+            # print(f"test vals after cieling= {test_values}")
+
+            # print(f"current_values = {current_values}")
             baseline = tuning.evaluate_values(current_values, mov_dist, mov_time, rmse_weight, variance_weight)
             cost = tuning.evaluate_values(test_values, mov_dist, mov_time, rmse_weight, variance_weight)
 
@@ -70,10 +79,16 @@ def main(start_values):
             # current_values[index] *= shift  # TODO: multipy shift by the magnitude of delta
 
             if cost_delta < 0:
+
                 current_values[index] *= shift
 
             else:
                 current_values[index] /= shift
+
+            if current_values[index] < ranges[index][0]:
+                current_values[index] = ranges[index][0]
+            elif current_values[index] > ranges[index][1]:
+                current_values[index] = ranges[index][1]
 
             if cost < absolute_min:  # TODO: retry to unsure it truly is abs minimum
                 # print(f"old absolute_min: {absolute_min}")
