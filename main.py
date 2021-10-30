@@ -10,11 +10,29 @@ from odrive.enums import *
 def in_range(val, range):
     return range[0] <= val <= range[1]
 
+class tune:
+
+
+
+    def __init__(self,values, cost):
+        self.values = values
+        self.cost = cost
+
+        max_equal_factor = iteration_shift_factor
+        min_equal_factor = 1/max_equal_factor
+
+
+    def equals(self, other_tune):
+
+        return all(self.min_equal_factor < t/t2 < self.max_equal_factor for t,t2 in zip(self.values, other_tune.values))
+
 
 
 
 
 def main(start_values):
+
+    costs = []
 
     tuning.startup(vel_limit, odrive_serial, axis_num)
     absolute_min = float("inf")
@@ -63,6 +81,11 @@ def main(start_values):
             # print(f"test vals after cieling= {test_values}")
 
             # print(f"current_values = {current_values}")
+
+            if any(t.equals(test_values) for t in costs):
+                print(f"already tested {test_values}")
+                continue
+
             baseline = tuning.evaluate_values(current_values, mov_dist, mov_time, rmse_weight, variance_weight)
             cost = tuning.evaluate_values(test_values, mov_dist, mov_time, rmse_weight, variance_weight)
 
@@ -94,6 +117,8 @@ def main(start_values):
                 current_values[index] = ranges[index][1]
 
             print(current_values)
+
+            costs.append(tune(current_values, cost))
 
             if cost < absolute_min:  # TODO: retry to unsure it truly is abs minimum
                 # print(f"old absolute_min: {absolute_min}")
