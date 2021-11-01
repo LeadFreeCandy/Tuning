@@ -18,8 +18,7 @@ mov_time = 1
 # The max speed the motor can travel during this move
 vel_limit = 20
 
-# Iteration shift factor represents the factor in which values are mutated during the simulated evolution
-iteration_shift_factor = 1.1
+
 # RMSE weight is the weight given to the area under the curve optimization, or essentially the speed at which it
 # arrives at the target value. 
 rmse_weight = 1
@@ -33,5 +32,7 @@ variance_weight = 2
 start_values = [.16,20,.32]
 start_values = []
 # The ranges for each of the values in the same order
-ranges = [[0,.2], [0,250], [0,3]]
+pbounds = {'vel_gain': (0, .2), 'pos_gain':[0,250], 'vel_integrator_gain':(0,3)}
+
+# ranges = [[0,.2], [0,250], [0,3]]
 
