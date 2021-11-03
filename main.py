@@ -18,13 +18,13 @@ class tune:
         self.values = values
         self.cost = cost
 
-        max_equal_factor = iteration_shift_factor
-        min_equal_factor = 1/max_equal_factor
+        self.max_equal_factor = 1.05
+        self.min_equal_factor = 1/1.05
 
 
-    def equals(self, other_tune):
+    def equals(self, other_values):
 
-        return all(self.min_equal_factor < t/t2 < self.max_equal_factor for t,t2 in zip(self.values, other_tune.values))
+        return all(self.min_equal_factor < t/t2 < self.max_equal_factor for t,t2 in zip(self.values, other_values))
 
 
 
@@ -58,6 +58,9 @@ def main(start_values):
     print("press ctrl + c to exit")
 
     try:
+
+        baseline = tuning.evaluate_values(current_values, mov_dist, mov_time, rmse_weight, variance_weight)
+
         while True:
 
             shift = rd.choice([1/iteration_shift_factor, iteration_shift_factor])
@@ -82,12 +85,16 @@ def main(start_values):
 
             # print(f"current_values = {current_values}")
 
-            if any(t.equals(test_values) for t in costs):
-                print(f"already tested {test_values}")
-                continue
 
-            baseline = tuning.evaluate_values(current_values, mov_dist, mov_time, rmse_weight, variance_weight)
-            cost = tuning.evaluate_values(test_values, mov_dist, mov_time, rmse_weight, variance_weight)
+            found = False
+            for t in costs:
+                if t.equals(test_values):
+                    # print(f"already tested {test_values}")
+                    cost = t.cost
+
+            if not found:
+                cost = tuning.evaluate_values(test_values, mov_dist, mov_time, rmse_weight, variance_weight)
+                costs.append(tune(test_values, cost))
 
             # cost = tuning.evaluate_values(values, mov_dist, mov_time, rmse, variance, print)
 
@@ -108,17 +115,33 @@ def main(start_values):
 
                 current_values[index] *= shift
 
+                if current_values[index] < ranges[index][0]:
+                    current_values[index] = ranges[index][0]
+                elif current_values[index] > ranges[index][1]:
+                    current_values[index] = ranges[index][1]
+
+                baseline = cost
             else:
                 current_values[index] /= shift
 
-            if current_values[index] < ranges[index][0]:
-                current_values[index] = ranges[index][0]
-            elif current_values[index] > ranges[index][1]:
-                current_values[index] = ranges[index][1]
+                if current_values[index] < ranges[index][0]:
+                    current_values[index] = ranges[index][0]
+                elif current_values[index] > ranges[index][1]:
+                    current_values[index] = ranges[index][1]
+
+                found = False
+                for t in costs:
+                    if t.equals(current_values):
+                        # print(f"already tested {current_values}")
+                        baseline = t.cost
+
+                if not found:
+                    baseline = tuning.evaluate_values(current_values, mov_dist, mov_time, rmse_weight, variance_weight)
+                    costs.append(tune(current_values, baseline))
 
             print(current_values)
 
-            costs.append(tune(current_values, cost))
+            # costs.append(tune(current_values, cost))
 
             if cost < absolute_min:  # TODO: retry to unsure it truly is abs minimum
                 # print(f"old absolute_min: {absolute_min}")
