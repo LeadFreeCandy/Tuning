@@ -1,4 +1,6 @@
 #X axis: [.132, 26.6, .29]
+#Y axis: [.2, 26.62, .83]
+#Z axis: [.18, 47.15, .16] meh
 
 import numpy as np
 import tuning
