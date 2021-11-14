@@ -91,9 +91,7 @@ def evaluate_values(values, mov_dist = 1, mov_time = 1, rmse_weight = 1, varianc
     if print_vals:
         print(f"rmse = {base_rmse}, variance = {base_variance}")
         print(f"cost = {cost}")
-
-
-
+        
     return cost
 
 
