@@ -5,6 +5,7 @@ import time
 import numpy as np
 import math
 import fibre.libfibre
+from functools import lru_cache
 
 axis = None
 odrv = None
@@ -67,6 +68,7 @@ def analyze_move(t = 1):
     # print(f"Computed with {values.size} values")
     return rmse, var
 
+@lru_cache
 def evaluate_values(values, mov_dist = 1, mov_time = 1, rmse_weight = 1, variance_weight = 3, print_vals = False):
 
     assert -0.05 < axis.encoder.pos_estimate < .05

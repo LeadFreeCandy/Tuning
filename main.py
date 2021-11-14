@@ -66,22 +66,26 @@ def main(start_values):
 
             # print(f"current_values = {current_values}")
             baseline = tuning.evaluate_values(current_values, mov_dist, mov_time, rmse_weight, variance_weight)
+
+            if baseline < absolute_min:  # TODO: retry to ensure it truly is abs minimum
+                # print(f"old absolute_min: {absolute_min}")
+                absolute_min = baseline
+                print(f"new absolute_min: {absolute_min}")
+                best_values = current_values[:]
+
+
             cost = tuning.evaluate_values(test_values, mov_dist, mov_time, rmse_weight, variance_weight)
+
+            if cost < absolute_min:  # TODO: retry to ensure it truly is abs minimum
+                # print(f"old absolute_min: {absolute_min}")
+                absolute_min = cost
+                print(f"new absolute_min: {absolute_min}")
+                best_values = test_values[:]
 
             # cost = tuning.evaluate_values(values, mov_dist, mov_time, rmse, variance, print)
 
 
             cost_delta = cost - baseline
-            # print(cost_delta)
-
-            # print(baseline)
-            # print(cost)
-
-            # print(f"--shifting with cost delta: {cost_delta}")
-            # print(f"--previous values: {current_values}")
-            # print(f"--new values: {test_values}")
-
-            # current_values[index] *= shift  # TODO: multipy shift by the magnitude of delta
 
             if cost_delta < 0:
 
@@ -97,11 +101,7 @@ def main(start_values):
 
             print(current_values)
 
-            if cost < absolute_min:  # TODO: retry to unsure it truly is abs minimum
-                # print(f"old absolute_min: {absolute_min}")
-                absolute_min = cost
-                print(f"new absolute_min: {absolute_min}")
-                best_values = current_values[:]
+            
 
 
 
