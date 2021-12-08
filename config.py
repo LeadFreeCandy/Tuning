@@ -1,7 +1,7 @@
 # Serial number of the odrive that you would like to tune.
 # May be left blank if only one is connected.
 odrive_serial = "20673593524B"
-odrive_serial = "20793595524B"
+# odrive_serial = "20793595524B"
 # Which axis you would like to tune, must be 0 or 1.
 axis_num = 1
 
@@ -11,7 +11,7 @@ axis_num = 1
 #---The rest of these values are most likely fine, so only tinker with these if you need to do so---
 
 # The distance in rotations to travel per move.
-mov_dist = 1
+mov_dist = 5
 # The time given for the motor to complete this move.
 # Ensure that this value is large enough to allow the motor to complete the full distance, and
 # that it has enough time to become stationary during the tuning cycle
