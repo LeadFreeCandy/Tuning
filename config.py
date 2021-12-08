@@ -23,11 +23,11 @@ vel_limit = 20
 iteration_shift_factor = 1.1
 # RMSE weight is the weight given to the area under the curve optimization, or essentially the speed at which it
 # arrives at the target value. 
-rmse_weight = 1
+rmse_weight = 4
 # Variance weight is the weight given to the anti-vibration optimization, increases this value if it is optimizing 
 # the tune with a vibration even after a full evolution time
 # NOTE: The values themselves are only significant as a ratio to each other. Ex doubling both values does nothing
-variance_weight = 2
+variance_weight = 1
 
 # The initial values to seed the evolution process with in order of: vel_gain, pos_gain, vel_integrator_gain
 # Set to empty array if you would like it to read existing values
