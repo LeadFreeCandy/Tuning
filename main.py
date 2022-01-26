@@ -18,7 +18,7 @@ def in_range(val, range):
 
 def main(start_values):
 
-    tuning.startup(vel_limit, odrive_serial, axis_num)
+    tuning.startup(odrive_serial, axis_num)
     absolute_min = float("inf")
     best_values = []
     # tuning.start_liveplotter(lambda:[tuning.axis.controller.config.vel_gain])

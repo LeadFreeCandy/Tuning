@@ -97,10 +97,16 @@ def evaluate_values(values, mov_dist = 1, mov_time = 1, rmse_weight = 1, varianc
 
 def start_plotter(data_list):
     start_liveplotter(lambda:data_list)
+    
+def set_freq(freq):
 
+    axis.controller.autotuning.frequency = freq
 
+def idle():
 
-def startup(vel_limit, odrive_serial, axis_num):
+    axis.requested_state = AXIS_STATE_IDLE
+
+def startup(odrive_serial, axis_num):
     global axis
     global odrv
 
@@ -133,7 +139,12 @@ def startup(vel_limit, odrive_serial, axis_num):
 
     axis.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
     axis.controller.config.control_mode = CONTROL_MODE_POSITION_CONTROL
-    axis.controller.config.input_mode = INPUT_MODE_PASSTHROUGH
+    axis.controller.config.input_mode = INPUT_MODE_TUNING
+    axis.controller.autotuning.frequency = 0
+    axis.controller.autotuning.pos_amplitude = 0
+    axis.controller.autotuning.vel_amplitude = 0
+    
+    
     time.sleep(1)
 
 
