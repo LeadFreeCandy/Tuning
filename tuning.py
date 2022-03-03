@@ -70,6 +70,7 @@ def analyze_move(t = 1):
 
 @lru_cache
 def evaluate_values(values, mov_dist = 1, mov_time = 1, rmse_weight = 1, variance_weight = 3, print_vals = False):
+    
 
     assert -0.05 < axis.encoder.pos_estimate < .05
 
@@ -81,6 +82,8 @@ def evaluate_values(values, mov_dist = 1, mov_time = 1, rmse_weight = 1, varianc
     base_rmse, base_variance = analyze_move(mov_time)
     axis.controller.input_pos = 0
     move = analyze_move(mov_time)
+    
+    
     base_rmse += move[0]
     base_variance += move[1]
     base_rmse /= 2
@@ -134,14 +137,14 @@ def startup(odrive_serial, axis_num):
         pass
     time.sleep(1)
 
-    axis.controller.config.vel_limit = 20
+    axis.controller.config.vel_limit = 40
     axis.controller.config.enable_overspeed_error = False
 
     axis.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
     axis.controller.config.control_mode = CONTROL_MODE_POSITION_CONTROL
-    axis.controller.config.input_mode = INPUT_MODE_TUNING
+    axis.controller.config.input_mode = INPUT_MODE_PASSTHROUGH
     axis.controller.autotuning.frequency = 0
-    axis.controller.autotuning.pos_amplitude = 0
+    axis.controller.autotuning.pos_amplitude = 1
     axis.controller.autotuning.vel_amplitude = 0
     
     

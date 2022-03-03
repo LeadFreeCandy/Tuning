@@ -8,10 +8,12 @@ def main():
     
     tuning.startup(odrive_serial, axis_num)
     
-    tuning.start_liveplotter(lambda: [tuning.axis.controller.pos_setpoint, tuning.axis.encoder.pos_estimate])
+    tuning.start_liveplotter(lambda: [tuning.axis.controller.pos_setpoint, tuning.axis.controller.vel_setpoint, tuning.axis.controller.torque_setpoint, tuning.axis.encoder.pos_estimate])
+
+    
     tuning.set_freq(.5)
     
-    time.sleep(60)
+    time.sleep(10)
     
     
     
@@ -20,3 +22,4 @@ if __name__ == "__main__":
         main()
     finally:
         tuning.idle()
+        # pass

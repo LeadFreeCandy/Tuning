@@ -65,22 +65,28 @@ def main(start_values):
             # print(f"test vals after cieling= {test_values}")
 
             # print(f"current_values = {current_values}")
-            baseline = tuning.evaluate_values(current_values, mov_dist, mov_time, rmse_weight, variance_weight)
+            baseline = tuning.evaluate_values(tuple(current_values), mov_dist, mov_time, rmse_weight, variance_weight)
 
             if baseline < absolute_min:  # TODO: retry to ensure it truly is abs minimum
                 # print(f"old absolute_min: {absolute_min}")
-                absolute_min = baseline
-                print(f"new absolute_min: {absolute_min}")
-                best_values = current_values[:]
+                baseline = tuning.evaluate_values.__wrapped__(tuple(current_values), mov_dist, mov_time, rmse_weight, variance_weight)
+                print("double checking a baseline")
+                if baseline < absolute_min:
+                    absolute_min = baseline
+                    print(f"new absolute_min: {absolute_min}")
+                    best_values = current_values[:]
 
 
-            cost = tuning.evaluate_values(test_values, mov_dist, mov_time, rmse_weight, variance_weight)
+            cost = tuning.evaluate_values(tuple(test_values), mov_dist, mov_time, rmse_weight, variance_weight)
 
             if cost < absolute_min:  # TODO: retry to ensure it truly is abs minimum
-                # print(f"old absolute_min: {absolute_min}")
-                absolute_min = cost
-                print(f"new absolute_min: {absolute_min}")
-                best_values = test_values[:]
+                print("Double checking a test")
+                cost = tuning.evaluate_values.__wrapped__(tuple(test_values), mov_dist, mov_time, rmse_weight, variance_weight)
+                if cost < absolute_min:
+                    # print(f"old absolute_min: {absolute_min}")
+                    absolute_min = cost
+                    print(f"new absolute_min: {absolute_min}")
+                    best_values = test_values[:]
 
             # cost = tuning.evaluate_values(values, mov_dist, mov_time, rmse, variance, print)
 
@@ -131,9 +137,10 @@ def main(start_values):
 
             time.sleep(1)
 
-            print(f" Cost: {tuning.evaluate_values(best_values, mov_dist, mov_time, rmse_weight, variance_weight)}")
 
-            tuning.axis.requested_state = 1
+            print(f" Cost: {tuning.evaluate_values.__wrapped__(tuple(best_values), mov_dist, mov_time, rmse_weight, variance_weight)}")
+
+            # tuning.axis.requested_state = 1
 
         if input("Would you like to keep these values? y/N: ") == "y":
             tuning.save_configuration(best_values)
