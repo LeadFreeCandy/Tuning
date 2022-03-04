@@ -30,8 +30,12 @@ def main(start_values):
     tuning.axis.controller.config.vel_gain = start_values[0]
     tuning.axis.controller.config.pos_gain = start_values[1]
     tuning.axis.controller.config.vel_integrator_gain = start_values[2]
+    
+    tuning.axis_slave.controller.config.vel_gain = start_values[0]
+    tuning.axis_slave.controller.config.pos_gain = start_values[1]
+    tuning.axis_slave.controller.config.vel_integrator_gain = start_values[2]
 
-    tuning.start_liveplotter(lambda: [tuning.axis.controller.input_pos, tuning.axis.encoder.pos_estimate])
+    tuning.start_liveplotter(lambda: [tuning.axis.controller.input_pos, tuning.axis.encoder.pos_estimate, tuning.axis_slave.encoder.pos_estimate])
 
     tuning.axis.controller.input_pos = 0
     time.sleep(3)
@@ -65,7 +69,7 @@ def main(start_values):
             # print(f"test vals after cieling= {test_values}")
 
             # print(f"current_values = {current_values}")
-            baseline = tuning.evaluate_values(tuple(current_values), mov_dist, mov_time, rmse_weight, variance_weight)
+            baseline = tuning.evaluate_values(tuple(current_values), mov_dist, mov_time, rmse_weight, variance_weight, True)
 
             if baseline < absolute_min:  # TODO: retry to ensure it truly is abs minimum
                 # print(f"old absolute_min: {absolute_min}")
@@ -117,6 +121,7 @@ def main(start_values):
     except KeyboardInterrupt:
 
         tuning.axis.requested_state = 1
+        tuning.axis_slave.requested_state = 1
 
         # tuning.axis.controller.config.vel_gain = 0
         # tuning.axis.controller.config.pos_gain = 0
@@ -130,6 +135,7 @@ def main(start_values):
 
         if input("Would you like to preview these values? y/N: ") == "y":
             tuning.axis.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
+            tuning.axis_slave.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
             tuning.axis.controller.config.control_mode = CONTROL_MODE_POSITION_CONTROL
             tuning.axis.controller.config.input_mode = INPUT_MODE_PASSTHROUGH
 
@@ -144,6 +150,9 @@ def main(start_values):
 
         if input("Would you like to keep these values? y/N: ") == "y":
             tuning.save_configuration(best_values)
+            
+        tuning.axis.requested_state = 1
+        tuning.axis_slave.requested_state = 1
 
 
 

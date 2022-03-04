@@ -8,6 +8,7 @@ import fibre.libfibre
 from functools import lru_cache
 
 axis = None
+axis_slave = None
 odrv = None
 
 def move(dist = 5):
@@ -16,14 +17,7 @@ def move(dist = 5):
 
     axis.controller.input_pos = dist
 
-def move2(t = 1):
-    startpos = axis.encoder.pos_estimate
 
-    axis.controller.input_vel = 3
-    time.sleep(t)
-    axis.controller.input_vel = -3
-    time.sleep(t)
-    axis.controller.input_pos = startpos
 
 def rmse_calc(values: np.array, start_pos, target_pos):
 
@@ -32,7 +26,7 @@ def rmse_calc(values: np.array, start_pos, target_pos):
         if (start_pos < val < target_pos) or (target_pos < val < start_pos):
             sum += abs(val - target_pos)
         else:
-            sum += abs(val - target_pos) * 5
+            sum += abs(val - target_pos) * 2
 
     return sum/values.size
 
@@ -56,14 +50,17 @@ def analyze_move(t = 1):
     t0 = time.time()
 
     values = np.array([])
+    values2 = np.array([])
     input_pos = axis.controller.input_pos
     start_pos = axis.encoder.pos_estimate
 
     while(time.time()-t0 < t):
         values = np.append(values, axis.encoder.pos_estimate)
+        values2 = np.append(values2, axis_slave.encoder.pos_estimate)
 
-    rmse = rmse_calc(values, start_pos, input_pos)
-    var = vibration_calc(values)
+    rmse = rmse_calc(values, start_pos, input_pos) + \
+    rmse_calc(values2, start_pos, input_pos)
+    var = vibration_calc(values) + vibration_calc(values2)
 
     # print(f"Computed with {values.size} values")
     return rmse, var
@@ -72,11 +69,22 @@ def analyze_move(t = 1):
 def evaluate_values(values, mov_dist = 1, mov_time = 1, rmse_weight = 1, variance_weight = 3, print_vals = False):
     
 
-    assert -0.05 < axis.encoder.pos_estimate < .05
+    try:
+        assert -0.25 < axis.encoder.pos_estimate < .25
+        assert -0.25 < axis_slave.encoder.pos_estimate < .25
+    except AssertionError:
+        print("this is bad!!!!")
+        return 1
 
     axis.controller.config.vel_gain = values[0]
     axis.controller.config.pos_gain = values[1]
     axis.controller.config.vel_integrator_gain = values[2]
+    
+    axis_slave.controller.config.vel_gain = values[0]
+    axis_slave.controller.config.pos_gain = values[1]
+    axis_slave.controller.config.vel_integrator_gain = values[2]
+    
+    
 
     axis.controller.input_pos = mov_dist
     base_rmse, base_variance = analyze_move(mov_time)
@@ -88,8 +96,11 @@ def evaluate_values(values, mov_dist = 1, mov_time = 1, rmse_weight = 1, varianc
     base_variance += move[1]
     base_rmse /= 2
     base_variance /= 2
+    
+    # base_variance = 0 if base_variance < .003 else 1
 
-    cost = base_rmse ** rmse_weight * base_variance ** variance_weight
+    cost = base_rmse if base_variance < .003 else base_variance + 100
+    # cost = base_rmse + base_variance
 
     if print_vals:
         print(f"rmse = {base_rmse}, variance = {base_variance}")
@@ -101,16 +112,16 @@ def evaluate_values(values, mov_dist = 1, mov_time = 1, rmse_weight = 1, varianc
 def start_plotter(data_list):
     start_liveplotter(lambda:data_list)
     
-def set_freq(freq):
 
-    axis.controller.autotuning.frequency = freq
 
 def idle():
 
+    axis_slave.requested_state = AXIS_STATE_IDLE
     axis.requested_state = AXIS_STATE_IDLE
 
 def startup(odrive_serial, axis_num):
     global axis
+    global axis_slave
     global odrv
 
 
@@ -125,15 +136,23 @@ def startup(odrive_serial, axis_num):
 
     if axis_num:
         axis = odrv.axis1
+        axis_slave = odrv.axis0
     else:
         axis = odrv.axis0
+        axis_slave = odrv.axis1
+        
+    odrv.clear_errors()
 
+    axis_slave.requested_state = AXIS_STATE_IDLE
 
     axis.requested_state =  AXIS_STATE_FULL_CALIBRATION_SEQUENCE
-
-
-
     while axis.current_state != AXIS_STATE_IDLE:
+        pass
+    time.sleep(1)
+    
+    axis_slave.requested_state =  AXIS_STATE_FULL_CALIBRATION_SEQUENCE
+    
+    while axis_slave.current_state != AXIS_STATE_IDLE:
         pass
     time.sleep(1)
 
@@ -143,9 +162,17 @@ def startup(odrive_serial, axis_num):
     axis.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
     axis.controller.config.control_mode = CONTROL_MODE_POSITION_CONTROL
     axis.controller.config.input_mode = INPUT_MODE_PASSTHROUGH
-    axis.controller.autotuning.frequency = 0
-    axis.controller.autotuning.pos_amplitude = 1
-    axis.controller.autotuning.vel_amplitude = 0
+    
+    axis_slave.controller.config.vel_limit = 40
+    axis_slave.controller.config.enable_overspeed_error = False
+
+    axis_slave.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
+    axis_slave.controller.config.control_mode = CONTROL_MODE_POSITION_CONTROL
+    axis_slave.controller.config.input_mode = INPUT_MODE_MIRROR
+    axis_slave.controller.config.axis_to_mirror = 0
+    axis_slave.controller.config.mirror_ratio = 1
+    
+
     
     
     time.sleep(1)
@@ -215,6 +242,10 @@ def save_configuration(values):
     axis.controller.config.vel_gain = values[0]
     axis.controller.config.pos_gain = values[1]
     axis.controller.config.vel_integrator_gain = values[2]
+    
+    axis_slave.controller.config.vel_gain = values[0]
+    axis_slave.controller.config.pos_gain = values[1]
+    axis_slave.controller.config.vel_integrator_gain = values[2]
 
     print("saving configuration!!")
 

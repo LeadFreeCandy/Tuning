@@ -31,8 +31,10 @@ variance_weight = 2
 
 # The initial values to seed the evolution process with in order of: vel_gain, pos_gain, vel_integrator_gain
 # Set to empty array if you would like it to read existing values
-# start_values = [.132, 26.6, .29]
-start_values = []
+
+start_values = [.132, 26.6, .1]
+start_values = [.09, 57.1, .11]
+# start_values = []
 # The ranges for each of the values in the same order
 ranges = [[0,.2], [0,250], [0,3]]
 
