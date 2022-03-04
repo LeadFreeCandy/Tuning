@@ -26,7 +26,7 @@ def rmse_calc(values: np.array, start_pos, target_pos):
         if (start_pos < val < target_pos) or (target_pos < val < start_pos):
             sum += abs(val - target_pos)
         else:
-            sum += abs(val - target_pos) * 2
+            sum += abs(val - target_pos) * 5
 
     return sum/values.size
 
@@ -65,8 +65,12 @@ def analyze_move(t = 1):
     # print(f"Computed with {values.size} values")
     return rmse, var
 
+def evaluate_values(values, mov_dist =1, mov_time = 1, rmse_weight = 1, variance_weight = 3, print_vals=False):
+    values = tuple(round(num, 3) for num in values)
+    return evaluate_values_raw(values, mov_dist, mov_time, rmse_weight, variance_weight, print_vals)
+
 @lru_cache
-def evaluate_values(values, mov_dist = 1, mov_time = 1, rmse_weight = 1, variance_weight = 3, print_vals = False):
+def evaluate_values_raw(values, mov_dist = 1, mov_time = 1, rmse_weight = 1, variance_weight = 3, print_vals = False):
     
 
     try:
@@ -99,7 +103,7 @@ def evaluate_values(values, mov_dist = 1, mov_time = 1, rmse_weight = 1, varianc
     
     # base_variance = 0 if base_variance < .003 else 1
 
-    cost = base_rmse if base_variance < .003 else base_variance + 100
+    cost = base_rmse if base_variance < .002 else base_variance + 100
     # cost = base_rmse + base_variance
 
     if print_vals:

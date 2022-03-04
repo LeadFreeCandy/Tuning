@@ -33,7 +33,7 @@ variance_weight = 2
 # Set to empty array if you would like it to read existing values
 
 start_values = [.132, 26.6, .1]
-start_values = [.09, 57.1, .11]
+start_values = [.112, 29.3, .121]
 # start_values = []
 # The ranges for each of the values in the same order
 ranges = [[0,.2], [0,250], [0,3]]
