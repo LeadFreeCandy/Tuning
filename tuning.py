@@ -79,8 +79,10 @@ def evaluate_values(values, mov_dist = 1, mov_time = 1, rmse_weight = 1, varianc
     axis.controller.config.vel_integrator_gain = values[2]
 
     axis.controller.input_pos = mov_dist
+    axis_slave.controller.input_pos = mov_dist
     base_rmse, base_variance = analyze_move(mov_time)
     axis.controller.input_pos = 0
+    axis_slave.controller.input_pos = 0
     move = analyze_move(mov_time)
     
     
@@ -143,9 +145,7 @@ def startup(odrive_serial, axis_num):
     axis.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
     axis.controller.config.control_mode = CONTROL_MODE_POSITION_CONTROL
     axis.controller.config.input_mode = INPUT_MODE_PASSTHROUGH
-    axis.controller.autotuning.frequency = 0
-    axis.controller.autotuning.pos_amplitude = 1
-    axis.controller.autotuning.vel_amplitude = 0
+
     
     
     time.sleep(1)
