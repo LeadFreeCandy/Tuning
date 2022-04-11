@@ -79,10 +79,10 @@ def evaluate_values(values, mov_dist = 1, mov_time = 1, rmse_weight = 1, varianc
     axis.controller.config.vel_integrator_gain = values[2]
 
     axis.controller.input_pos = mov_dist
-    axis_slave.controller.input_pos = mov_dist
+
     base_rmse, base_variance = analyze_move(mov_time)
     axis.controller.input_pos = 0
-    axis_slave.controller.input_pos = 0
+
     move = analyze_move(mov_time)
     
     
