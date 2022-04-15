@@ -91,8 +91,10 @@ def evaluate_values_raw(values, mov_dist = 1, mov_time = 1, rmse_weight = 1, var
     
 
     axis.controller.input_pos = mov_dist
+    axis_slave.controller.input_pos = mov_dist
     base_rmse, base_variance = analyze_move(mov_time)
     axis.controller.input_pos = 0
+    axis_slave.controller.input_pos = 0
     move = analyze_move(mov_time)
     
     
@@ -172,9 +174,12 @@ def startup(odrive_serial, axis_num):
 
     axis_slave.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
     axis_slave.controller.config.control_mode = CONTROL_MODE_POSITION_CONTROL
-    axis_slave.controller.config.input_mode = INPUT_MODE_MIRROR
-    axis_slave.controller.config.axis_to_mirror = 0
-    axis_slave.controller.config.mirror_ratio = 1
+    axis_slave.controller.config.input_mode = INPUT_MODE_PASSTHROUGH
+
+    # set linear counts to 0
+    axis.encoder.set_linear_count(0)
+    axis_slave.encoder.set_linear_count(0)
+    
     
 
     
